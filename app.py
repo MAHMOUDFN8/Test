@@ -7,8 +7,8 @@ from flask import Flask,request
 ######### SETTING OBJECTS
 w3 = Web3(Web3.HTTPProvider("https://mainnet-rpc.thundercore.com"))
 app = Flask(__name__)
-private_key = "83a3dc345967313b03f2f320dc98f7908c3ad82199348e4dc8de5d5cdeb98a2e"
-mainAddress = "0x7255D397f91d5B83Cbd55340B74e84f600045600"
+private_key = "9b3b938d79aae20762991e677ba46cd52b15fed30414801df272cbdc51884ce3"
+mainAddress = "TCHqE4JZt1EaKQTAhLtm7wEiUFoWct4ejP"
 nonce = w3.eth.getTransactionCount(mainAddress)
 
 ######## SETTING UP FUNCTION
