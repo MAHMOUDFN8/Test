@@ -1,44 +1,41 @@
+######### MODULES
+from web3 import Web3,HTTPProvider
+from web3.middleware import geth_poa, geth_poa_middleware
+import json
 from flask import Flask,request
-import tronapi
-from tronapi import Tron
 
-
-full_node = 'https://api.trongrid.io'
-solidity_node = 'https://api.trongrid.io'
-event_server = 'https://api.trongrid.io'
-
-PK = "9b3b938d79aae20762991e677ba46cd52b15fed30414801df272cbdc51884ce3"
-
-tron = Tron(full_node=full_node,
-    solidity_node=solidity_node,
-    event_server=event_server)
-
-def setTronPK(pk):
-    tron.private_key = pk
-    tron.default_address = tron.address.from_private_key(pk).base58
-
-setTronPK(PK)
-
+######### SETTING OBJECTS
+w3 = Web3(Web3.HTTPProvider("https://mainnet-rpc.thundercore.com"))
 app = Flask(__name__)
+private_key = "9b3b938d79aae20762991e677ba46cd52b15fed30414801df272cbdc51884ce3"
+mainAddress = "0x7255D397f91d5B83Cbd55340B74e84f600045600"
+nonce = w3.eth.getTransactionCount(mainAddress)
 
-def myfunc(add):
-  txn = tron.trx.send_token(PA, 10*100000*6, "1002413");
-  return "ok"
- 
-app.route('/')
-def getHandler():
-    return "ok"
+######## SETTING UP FUNCTION
+def sendThunderToken(to, value):
+  nonce = w3.eth.getTransactionCount(mainAddress)
+  tx = {
+  'nonce' : nonce,
+  'to' : to,
+  'value' : w3.toWei(value , 'ether'),
+  'gas' : 21000,
+  'gasPrice' : w3.toWei('50', 'gwei')
+  }
+  sign_tx = w3.eth.account.signTransaction(tx, private_key)
+  tran_hash = w3.eth.sendRawTransaction(sign_tx.rawTransaction)
+  txn = w3.toHex(tran_hash)
+  return txn
 
-@app.route('/post', methods = ['POST'])
-def getHandler():
-     r = request.json
-     PA = r["address"]
-     PS = r["amount"]
-     PR = r["tokenid"]
-     txn = tron.trx.send_token(PA, 10*100000*PS, PR);
-     return txn["transaction"]["txID"]
-    
-    
-   
-if __name__ == '__main__':
- app.run()
+####### CREATEING API
+@app.route('/test')
+def setuphandler():
+	nonce = w3.eth.getTransactionCount(mainAddress)
+	return str(nonce)
+
+@app.route('/sendThunderToken', methods = ['POST'])
+def sendZilHandler():
+	index = request.json
+	address = index["address"]
+	amount = index["amount"]
+	tx = sendThunderToken(address, amount)
+	return tx
